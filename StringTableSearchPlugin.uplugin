@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "StringTable Search Plugin",
+	"Description": "",
+	"Category": "StringTable Search Plugin",
+	"CreatedBy": "Vashchenko",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "StringTableSearchPlugin",
+			"Type": "Editor",
+			"LoadingPhase": "PreDefault"
+		}
+	]
+}
