@@ -4,6 +4,13 @@
 
 #include "CoreMinimal.h"
 
+struct FStringTable_Coincidences
+{
+	FAssetData* AssetData;
+	TMap<FString, FString> StringMap;
+};
+
+class FAssetRegistryModule;
 /**
  * 
  */
@@ -15,6 +22,8 @@ class STRINGTABLESEARCHPLUGIN_API SSearchInStringTablesWidget: public SCompoundW
 	SLATE_END_ARGS()
 
 public:
+	SSearchInStringTablesWidget();
+	
 	void Construct(const FArguments& InArgs);
 
 private:
@@ -22,6 +31,12 @@ private:
 	TSharedPtr<SSearchBox> SearchTextField;
 
 	FString	SearchValue;
+
+	TArray<FAssetData> StringTableAssets;
+
+	FAssetRegistryModule* AssetRegistryModule;
+	
+	TArray<FStringTable_Coincidences> StringTableCoincidences;
 
 	void OnSearchTextChanged(const FText& Text);
 
