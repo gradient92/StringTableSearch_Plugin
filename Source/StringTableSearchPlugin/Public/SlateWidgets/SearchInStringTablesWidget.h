@@ -36,7 +36,9 @@ private:
 
 	FAssetRegistryModule* AssetRegistryModule;
 	
-	TArray<FStringTable_Coincidences> StringTableCoincidences;
+	TArray<FStringTable_Coincidences> StringTablesWithCoincidences;
+
+	TSharedPtr<SScrollBox> ResultsContainer;
 
 	void OnSearchTextChanged(const FText& Text);
 

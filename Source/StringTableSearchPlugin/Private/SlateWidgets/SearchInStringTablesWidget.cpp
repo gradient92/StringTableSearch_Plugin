@@ -45,6 +45,10 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 			[
 				SNew(SBorder)
 				.BorderImage(FAppStyle::Get().GetBrush("Brushes.Recessed"))
+				.Padding(FMargin(8.f, 8.f, 4.f, 0.f))
+				[
+					SAssignNew(ResultsContainer, SScrollBox)
+				]
 			]
 
 			+SVerticalBox::Slot()
@@ -65,61 +69,79 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 void SSearchInStringTablesWidget::OnSearchTextChanged(const FText& Text)
 {
 	SearchValue = Text.ToString();
-
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			10.f,
-			FColor::Yellow,
-			FString::Printf(TEXT("typing"))
-			);
-	}
 }
 
 void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETextCommit::Type CommitType )
 {
+	ResultsContainer->ClearChildren();
 	StringTableAssets.Empty();
-	StringTableCoincidences.Empty();
+	StringTablesWithCoincidences.Empty();
 	AssetRegistryModule->Get().GetAssetsByClass(UStringTable::StaticClass()->GetClassPathName(), StringTableAssets);
 	
-	for (int i = 0; i < StringTableAssets.Num(); i++)
+	for (FAssetData& AssetData : StringTableAssets)
 	{
-		FAssetData& AssetData = StringTableAssets[i];
-		
 		UStringTable* StringTable = Cast<UStringTable>(AssetData.GetAsset());
-		if (!StringTable)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Не удалось загрузить String Table: %s"), *AssetData.AssetName.ToString());
-			continue;
-		}
+		if (!StringTable) continue;
 		
 		FStringTableConstRef TableData = StringTable->GetStringTable();
-
-
-		TMap<FString, FString> StringTableMap;
 		
-		TableData->EnumerateSourceStrings([&StringTableMap](const FString& Key, const FString& SourceString) 
+		TMap<FString, FString> Coincidences;
+		
+		TableData->EnumerateSourceStrings([&](const FString& Key, const FString& SourceString) 
 		{
-			StringTableMap.Add(Key, SourceString);
+			if (Key.ToLower().Contains(SearchValue.ToLower()) || SourceString.ToLower().Contains(SearchValue.ToLower()))
+			{
+				Coincidences.Add(Key, SourceString);
+			}
 			return true;
 		});
-
-		TMap<FString, FString> Coincidences;
-		for (auto Row : StringTableMap)
-		{
-			if (Row.Key.ToLower().Contains(SearchValue.ToLower()) || Row.Value.ToLower().Contains(SearchValue.ToLower()))
-			{
-				Coincidences.Add(Row.Key, Row.Value);
-				UE_LOG(LogTemp, Log, TEXT("  Key: %s, Source String: %s"), *Row.Key , *Row.Value);
-			}
-		}
+		
 		if (!Coincidences.IsEmpty())
 		{
-			StringTableCoincidences.SetNum(StringTableCoincidences.Num() + 1);
+			StringTablesWithCoincidences.SetNum(StringTablesWithCoincidences.Num() + 1);
 
-			StringTableCoincidences[StringTableCoincidences.Num() - 1].AssetData = &StringTableAssets[i];
-			StringTableCoincidences[StringTableCoincidences.Num() - 1].StringMap = Coincidences;
+			StringTablesWithCoincidences[StringTablesWithCoincidences.Num() - 1].AssetData = &AssetData;
+			StringTablesWithCoincidences[StringTablesWithCoincidences.Num() - 1].StringMap = Coincidences;
+		}
+	}
+	
+	for (FStringTable_Coincidences StringTableCoincidences : StringTablesWithCoincidences)
+	{
+		TSharedPtr<SVerticalBox> VerticalBox;
+
+		//TODO: Rebuild Search Result Widget 
+		
+		ResultsContainer->AddSlot()
+		[
+			SNew(SBox)
+			[
+				SAssignNew(VerticalBox, SVerticalBox)
+			]
+		];
+
+		VerticalBox->AddSlot()
+		[
+			SNew(SBox)
+			.HeightOverride(50.f)
+			[
+				SNew(SButton)
+				.ButtonStyle(FAppStyle::Get(), "FlatButton.Danger")
+				.Text(FText::FromString(*StringTableCoincidences.AssetData->AssetName.ToString()))
+			]
+			
+		];
+
+		for (auto Pair : StringTableCoincidences.StringMap)
+		{
+			VerticalBox->AddSlot()
+			[
+				SNew(SBox)
+				.HeightOverride(30.f)
+				[
+					SNew(SButton)
+					.Text(FText::FromString(Pair.Key + " " + Pair.Value))
+				]
+			];
 		}
 	}
 }
