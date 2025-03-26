@@ -26,4 +26,9 @@ public:
 	TArray<TSharedPtr<SBox>> Boxes;
 	
 	const FSlateBrush* GetExpanderImage() const;
+	
+	//void OnSlotResize(float X);
+	
+	TSharedRef<FSlateBrush> MainBorderBrush = MakeShared<FSlateBrush>();
+	TSharedRef<FSlateBrush> ElementBorderBrush = MakeShared<FSlateBrush>();
 };

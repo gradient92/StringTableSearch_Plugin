@@ -74,6 +74,8 @@ void SSearchInStringTablesWidget::OnSearchTextChanged(const FText& Text)
 
 void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETextCommit::Type CommitType )
 {
+	if (SearchValue.TrimStartAndEnd().IsEmpty()) return;
+	
 	ResultsContainer->ClearChildren();
 	StringTableAssets.Empty();
 	StringTablesWithCoincidences.Empty();

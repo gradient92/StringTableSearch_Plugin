@@ -7,8 +7,6 @@
 void SCoincidenceWidget::Construct(const FArguments& InArgs)
 {
 	if (!InArgs._StringTablesWithCoincidence) return;
-	
-	//TODO: Rebuild Search Result Widget
 		
 	TSharedPtr<SVerticalBox> VerticalBox;
 	this->ChildSlot
@@ -18,43 +16,55 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 			SAssignNew(VerticalBox, SVerticalBox)
 		]
 	];
-		
+
+	MainBorderBrush->TintColor = FSlateColor(FLinearColor(FColor::FromHex(TEXT("2F2F2FFF"))));
+	ElementBorderBrush->TintColor = FSlateColor(FLinearColor(FColor::FromHex(TEXT("242424FF"))));
+	
 	VerticalBox->AddSlot()
 	[
-		SNew(SBorder)
-		.BorderImage(FAppStyle::Get().GetBrush("DetailsView.CardHeaderTopRounded"))
+		SNew(SBox)
+		.Padding(0.f, 0.f, 0.f, 1.f)
+		.HeightOverride(28.f)
 		[
-			SNew(SBox)
-			.MinDesiredHeight(20.f)
+			SNew(SBorder)
+			.BorderImage(&MainBorderBrush.Get())
 			.VAlign(VAlign_Center)
 			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(5.f, 0.f, 0.f, 0.f)
+				SNew(SBox)
+				.VAlign(VAlign_Center)
 				[
-					SAssignNew(ExpanderArrow, SButton)
-					.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-					.VAlign(VAlign_Center)
-					.HAlign(HAlign_Center)
-					.ClickMethod(EButtonClickMethod::MouseDown)
-					.OnClicked(this, &SCoincidenceWidget::OnExpanderClicked)
-					.IsFocusable(false)
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(5.f, 0.f, 0.f, 0.f)
 					[
-						SNew(SImage)
-						.Image( this, &SCoincidenceWidget::GetExpanderImage)
-						.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+						SAssignNew(ExpanderArrow, SButton)
+						.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+						.VAlign(VAlign_Center)
+						.HAlign(HAlign_Center)
+						.ClickMethod(EButtonClickMethod::MouseDown)
+						.OnClicked(this, &SCoincidenceWidget::OnExpanderClicked)
+						.IsFocusable(false)
+						[
+							SNew(SImage)
+							.Image( this, &SCoincidenceWidget::GetExpanderImage)
+							.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+						]
 					]
-				]
-				+ SHorizontalBox::Slot()
-				.Padding(5.f, 0.f, 0.f, 0.f)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString(InArgs._StringTablesWithCoincidence->AssetData->AssetName.ToString()))
-					.Justification(ETextJustify::Left)
+            				
+					+ SHorizontalBox::Slot()
+					.Padding(5.f, 0.f, 0.f, 0.f)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString(InArgs._StringTablesWithCoincidence->AssetData->AssetName.ToString()))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Justification(ETextJustify::Left)
+					]
 				]
 			]
 		]
+		
 	];
 		
 		
@@ -66,10 +76,40 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(Box, SBox)
 			.Visibility(isExpanded ? EVisibility::Visible : EVisibility::Collapsed)
-			.HeightOverride(30.f)
+			.HeightOverride(28.f)
+			.Padding(2.f, 0.f, 2.f, 1.f)
 			[
-				SNew(SButton)
-				.Text(FText::FromString(Pair.Key + " " + Pair.Value))
+				SNew(SSplitter)
+				.Style(FAppStyle::Get(), "DetailsView.Splitter")
+				.PhysicalSplitterHandleSize(1.0f)
+				.HitDetectionSplitterHandleSize(10.0f)
+				.Clipping(EWidgetClipping::ClipToBoundsAlways)
+				+ SSplitter::Slot()
+				.Value(0.2)
+				[
+					SNew(SBorder)
+					.BorderImage(&ElementBorderBrush.Get())
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
+						.Justification(ETextJustify::Left)
+						.Text(FText::FromString(Pair.Key))
+					]
+				]
+				+ SSplitter::Slot()
+				[
+					SNew(SBorder)
+					.BorderImage(&ElementBorderBrush.Get())
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
+						.Justification(ETextJustify::Left)
+						.Text(FText::FromString(Pair.Value))
+					]
+				]
+				
 			]
 		];
 		
@@ -123,3 +163,8 @@ const FSlateBrush* SCoincidenceWidget::GetExpanderImage() const
 
 	return FAppStyle::Get().GetBrush(ResourceName);
 }
+
+/*void SCoincidenceWidget::OnSlotResize(float X)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%f"), X);
+}*/
