@@ -6,6 +6,7 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Internationalization/StringTable.h"
 #include "Internationalization/StringTableCore.h"
+#include "SlateWidgets/CoincidenceWidget.h"
 #include "Widgets/Input/SSearchBox.h"
 
 SSearchInStringTablesWidget::SSearchInStringTablesWidget()
@@ -104,44 +105,14 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 			StringTablesWithCoincidences[StringTablesWithCoincidences.Num() - 1].StringMap = Coincidences;
 		}
 	}
-	
-	for (FStringTable_Coincidences StringTableCoincidences : StringTablesWithCoincidences)
-	{
-		TSharedPtr<SVerticalBox> VerticalBox;
 
-		//TODO: Rebuild Search Result Widget 
-		
+	for (FStringTable_Coincidences StringTableCoincidence : StringTablesWithCoincidences)
+	{
 		ResultsContainer->AddSlot()
 		[
-			SNew(SBox)
-			[
-				SAssignNew(VerticalBox, SVerticalBox)
-			]
+			SNew(SCoincidenceWidget)
+			.StringTablesWithCoincidence(&StringTableCoincidence)
 		];
-
-		VerticalBox->AddSlot()
-		[
-			SNew(SBox)
-			.HeightOverride(50.f)
-			[
-				SNew(SButton)
-				.ButtonStyle(FAppStyle::Get(), "FlatButton.Danger")
-				.Text(FText::FromString(*StringTableCoincidences.AssetData->AssetName.ToString()))
-			]
-			
-		];
-
-		for (auto Pair : StringTableCoincidences.StringMap)
-		{
-			VerticalBox->AddSlot()
-			[
-				SNew(SBox)
-				.HeightOverride(30.f)
-				[
-					SNew(SButton)
-					.Text(FText::FromString(Pair.Key + " " + Pair.Value))
-				]
-			];
-		}
 	}
+	
 }
