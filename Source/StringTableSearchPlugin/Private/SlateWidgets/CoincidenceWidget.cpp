@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Alexander "gradient92" Vashchenko
 
 #include "SlateWidgets/CoincidenceWidget.h"
 
