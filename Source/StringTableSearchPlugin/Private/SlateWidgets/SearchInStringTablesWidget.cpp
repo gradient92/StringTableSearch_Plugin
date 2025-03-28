@@ -12,6 +12,8 @@
 SSearchInStringTablesWidget::SSearchInStringTablesWidget()
 {
 	AssetRegistryModule = &FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	ColumnFillCoefficients[0] = 0.6f;
+	ColumnFillCoefficients[1] = 1.0f;
 }
 
 void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
@@ -21,7 +23,7 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 		SNew(SBorder)
 		.BorderImage(FAppStyle::Get().GetBrush("Brushes.Panel"))
 		[
-			SAssignNew(MainVerticalBox, SVerticalBox)
+			SNew(SVerticalBox)
 			+SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(8.f, 5.f, 8.f, 5.f)
@@ -33,7 +35,7 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 					+SHorizontalBox::Slot()
 					.FillWidth(1)
 					[
-						SAssignNew(SearchTextField, SSearchBox)
+						SNew(SSearchBox)
 						.HintText(FText::FromString(TEXT("Enter Key or Source String to find references...")))
 						.OnTextChanged(this, &SSearchInStringTablesWidget::OnSearchTextChanged)
 						.OnTextCommitted(this, &SSearchInStringTablesWidget::OnSearchTextCommitted)
@@ -54,15 +56,7 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 
 			+SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding( FMargin( 16.f, 8.f ) )
-			[
-				SNew(SHorizontalBox)
-				
-				+SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(FMargin(12.f, 8.f, 16.f, 8.f))
-				.VAlign(VAlign_Center)
-			]
+			.Padding( FMargin( 0.f, 8.f ) )
 		]
 	];
 }
@@ -79,6 +73,7 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 	ResultsContainer->ClearChildren();
 	StringTableAssets.Empty();
 	StringTablesWithCoincidences.Empty();
+	
 	AssetRegistryModule->Get().GetAssetsByClass(UStringTable::StaticClass()->GetClassPathName(), StringTableAssets);
 	
 	for (FAssetData& AssetData : StringTableAssets)
@@ -114,7 +109,17 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 		[
 			SNew(SCoincidenceWidget)
 			.StringTablesWithCoincidence(&StringTableCoincidence)
+			.ColumnFillCoefficients(ColumnFillCoefficients)
 		];
 	}
-	
+
+	if (ResultsContainer->NumSlots() == 0)
+	{
+		ResultsContainer->AddSlot()
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString("No Results found"))
+			.Margin(FMargin(18.f, 3.f, 0.f, 0.f))
+		];
+	}
 }

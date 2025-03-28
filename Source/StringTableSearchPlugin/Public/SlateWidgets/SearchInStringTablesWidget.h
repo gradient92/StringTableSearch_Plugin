@@ -27,9 +27,6 @@ public:
 	void Construct(const FArguments& InArgs);
 
 private:
-	TWeakPtr<SVerticalBox> MainVerticalBox;
-	TSharedPtr<SSearchBox> SearchTextField;
-
 	FString	SearchValue;
 
 	TArray<FAssetData> StringTableAssets;
@@ -39,6 +36,8 @@ private:
 	TArray<FStringTable_Coincidences> StringTablesWithCoincidences;
 
 	TSharedPtr<SScrollBox> ResultsContainer;
+
+	float ColumnFillCoefficients[2];
 
 	void OnSearchTextChanged(const FText& Text);
 

@@ -3,11 +3,16 @@
 
 #include "SlateWidgets/CoincidenceWidget.h"
 
+#include "AssetToolsModule.h"
 
 void SCoincidenceWidget::Construct(const FArguments& InArgs)
 {
 	if (!InArgs._StringTablesWithCoincidence) return;
-		
+	AssetData = InArgs._StringTablesWithCoincidence->AssetData;
+	
+	if (!InArgs._ColumnFillCoefficients) return;
+	ColumnFillCoefficients = InArgs._ColumnFillCoefficients;
+	
 	TSharedPtr<SVerticalBox> VerticalBox;
 	this->ChildSlot
 	[
@@ -29,6 +34,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 			SNew(SBorder)
 			.BorderImage(&MainBorderBrush.Get())
 			.VAlign(VAlign_Center)
+			.OnMouseDoubleClick(this, &SCoincidenceWidget::OnMouseClick)
 			[
 				SNew(SBox)
 				.VAlign(VAlign_Center)
@@ -67,11 +73,22 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 		
 	];
 		
-		
 	for (auto Pair : InArgs._StringTablesWithCoincidence->StringMap)
 	{
 		TSharedPtr<SBox> Box;
 
+		/* Trims spaces at the beginning */
+		//Pair.Key = Pair.Key.TrimStart();
+		//Pair.Value = Pair.Value.TrimStart();
+		
+		Pair.Key.ReplaceInline(TEXT("\r\n"), TEXT("[↓↓↓]"));
+		Pair.Value.ReplaceInline(TEXT("\r\n"), TEXT("[↓↓↓]"));
+		
+		TAttribute<float> FillCoefficient_0, FillCoefficient_1;
+		{
+			FillCoefficient_0.Bind(TAttribute<float>::FGetter::CreateSP(this, &SCoincidenceWidget::GetColumnFillCoefficient, 0));
+			FillCoefficient_1.Bind(TAttribute<float>::FGetter::CreateSP(this, &SCoincidenceWidget::GetColumnFillCoefficient, 1));
+		}
 		VerticalBox->AddSlot()
 		[
 			SAssignNew(Box, SBox)
@@ -85,7 +102,8 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 				.HitDetectionSplitterHandleSize(10.0f)
 				.Clipping(EWidgetClipping::ClipToBoundsAlways)
 				+ SSplitter::Slot()
-				.Value(0.2)
+				.Value(FillCoefficient_0)
+				.OnSlotResized(SSplitter::FOnSlotResized::CreateSP(this, &SCoincidenceWidget::OnSlotResize, 0))
 				[
 					SNew(SBorder)
 					.BorderImage(&ElementBorderBrush.Get())
@@ -95,9 +113,15 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
 						.Justification(ETextJustify::Left)
 						.Text(FText::FromString(Pair.Key))
+						.AutoWrapText(false)
+						.WrapTextAt(0)
+						.Clipping(EWidgetClipping::ClipToBounds)
+						.OverflowPolicy(ETextOverflowPolicy::Ellipsis)
 					]
 				]
 				+ SSplitter::Slot()
+				.Value(FillCoefficient_1)
+				.OnSlotResized(SSplitter::FOnSlotResized::CreateSP(this, &SCoincidenceWidget::OnSlotResize, 1))
 				[
 					SNew(SBorder)
 					.BorderImage(&ElementBorderBrush.Get())
@@ -107,6 +131,10 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
 						.Justification(ETextJustify::Left)
 						.Text(FText::FromString(Pair.Value))
+						.AutoWrapText(false)
+						.WrapTextAt(0)
+						.Clipping(EWidgetClipping::ClipToBounds)
+						.OverflowPolicy(ETextOverflowPolicy::Ellipsis)
 					]
 				]
 				
@@ -115,7 +143,6 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 		
 		Boxes.Add(Box);
 	}
-	
 }
 
 FReply SCoincidenceWidget::OnExpanderClicked()
@@ -164,7 +191,24 @@ const FSlateBrush* SCoincidenceWidget::GetExpanderImage() const
 	return FAppStyle::Get().GetBrush(ResourceName);
 }
 
-/*void SCoincidenceWidget::OnSlotResize(float X)
+void SCoincidenceWidget::OnSlotResize(float FillCoefficient, int32 ColumnIndex) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f"), X);
-}*/
+	ColumnFillCoefficients[ColumnIndex] = FillCoefficient;
+}
+
+float SCoincidenceWidget::GetColumnFillCoefficient(int32 ColumnIndex) const
+{
+	ensure(ColumnIndex == 0 || ColumnIndex == 1);
+ 	return ColumnFillCoefficients[ColumnIndex];
+}
+
+FReply SCoincidenceWidget::OnMouseClick(const FGeometry& Geometry, const FPointerEvent& PointerEvent) const
+{
+	TArray<UObject*> AssetsToOpenArray;
+	AssetsToOpenArray.Add(AssetData->GetAsset());  
+	
+	FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get()
+	.OpenEditorForAssets(AssetsToOpenArray);
+	
+	return FReply::Unhandled();
+}
