@@ -3,6 +3,7 @@
 #include "SlateWidgets/CoincidenceWidget.h"
 
 #include "AssetToolsModule.h"
+#include "HAL/PlatformApplicationMisc.h"
 
 void SCoincidenceWidget::Construct(const FArguments& InArgs)
 {
@@ -33,7 +34,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 			SNew(SBorder)
 			.BorderImage(&MainBorderBrush.Get())
 			.VAlign(VAlign_Center)
-			.OnMouseDoubleClick(this, &SCoincidenceWidget::OnMouseClick)
+			.OnMouseDoubleClick(this, &SCoincidenceWidget::OnMouseDoubleClick)
 			[
 				SNew(SBox)
 				.VAlign(VAlign_Center)
@@ -72,16 +73,9 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 		
 	];
 		
-	for (auto Pair : InArgs._StringTablesWithCoincidence->StringMap)
+	for (TPair<FString, FString>& Pair : InArgs._StringTablesWithCoincidence->StringMap)
 	{
 		TSharedPtr<SBox> Box;
-
-		/* Trims spaces at the beginning */
-		//Pair.Key = Pair.Key.TrimStart();
-		//Pair.Value = Pair.Value.TrimStart();
-		
-		Pair.Key.ReplaceInline(TEXT("\r\n"), TEXT("[↓↓↓]"));
-		Pair.Value.ReplaceInline(TEXT("\r\n"), TEXT("[↓↓↓]"));
 		
 		TAttribute<float> FillCoefficient_0, FillCoefficient_1;
 		{
@@ -107,11 +101,12 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 					SNew(SBorder)
 					.BorderImage(&ElementBorderBrush.Get())
 					.VAlign(VAlign_Center)
+					.OnMouseButtonUp(this, &SCoincidenceWidget::OnElementMouseButtonUp, Pair)
 					[
 						SNew(STextBlock)
 						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
 						.Justification(ETextJustify::Left)
-						.Text(FText::FromString(Pair.Key))
+						.Text(FText::FromString(Pair.Key.Replace(TEXT("\r\n"), TEXT("[↓↓↓]"))))
 						.AutoWrapText(false)
 						.WrapTextAt(0)
 						.Clipping(EWidgetClipping::ClipToBounds)
@@ -125,18 +120,18 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 					SNew(SBorder)
 					.BorderImage(&ElementBorderBrush.Get())
 					.VAlign(VAlign_Center)
+					.OnMouseButtonUp(this, &SCoincidenceWidget::OnElementMouseButtonUp, Pair)
 					[
 						SNew(STextBlock)
 						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
 						.Justification(ETextJustify::Left)
-						.Text(FText::FromString(Pair.Value))
+						.Text(FText::FromString(Pair.Value.Replace(TEXT("\r\n"), TEXT("[↓↓↓]"))))
 						.AutoWrapText(false)
 						.WrapTextAt(0)
 						.Clipping(EWidgetClipping::ClipToBounds)
 						.OverflowPolicy(ETextOverflowPolicy::Ellipsis)
 					]
 				]
-				
 			]
 		];
 		
@@ -201,13 +196,69 @@ float SCoincidenceWidget::GetColumnFillCoefficient(int32 ColumnIndex) const
  	return ColumnFillCoefficients[ColumnIndex];
 }
 
-FReply SCoincidenceWidget::OnMouseClick(const FGeometry& Geometry, const FPointerEvent& PointerEvent) const
+FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& MouseEvent,
+	 TPair<FString, FString> Pair)
 {
-	TArray<UObject*> AssetsToOpenArray;
-	AssetsToOpenArray.Add(AssetData->GetAsset());  
+	if (MouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		FMenuBuilder MenuBuilder(true, nullptr);
+		MenuBuilder.BeginSection("Options", FText::FromString("Options"));
+
+		MenuBuilder.AddMenuEntry(
+			FText::FromString("Copy Key"),
+			FText::FromString("Copy the selected Key"),
+			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*Pair.Key);
+			}))
+		);
+
+		MenuBuilder.AddMenuEntry(
+			FText::FromString("Copy Source String"),
+			FText::FromString("Copy the selected Source String"),
+			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*Pair.Value);
+			}))
+		);
+
+		MenuBuilder.AddMenuEntry(
+			FText::FromString("Copy Reference"),
+			FText::FromString("Copy the selected row reference"),
+			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*FString::Printf(TEXT("LOCTABLE(\"%s\", \"%s\")"),
+					*AssetData->GetSoftObjectPath().ToString(), *Pair.Key));
+			}))
+		);
+
+		TSharedRef<SWidget> ContextMenu = MenuBuilder.MakeWidget();
+		
+		FSlateApplication::Get().PushMenu(
+			AsShared(),
+			FWidgetPath(),
+			ContextMenu,
+			MouseEvent.GetScreenSpacePosition(),
+			FPopupTransitionEffect(FPopupTransitionEffect::ContextMenu)
+		);
+
+	}
+	return FReply::Unhandled();
+}
+
+FReply SCoincidenceWidget::OnMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent) const
+{
+	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		TArray<UObject*> AssetsToOpenArray;
+		AssetsToOpenArray.Add(AssetData->GetAsset());  
 	
-	FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get()
-	.OpenEditorForAssets(AssetsToOpenArray);
+		FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get()
+		.OpenEditorForAssets(AssetsToOpenArray);
+	}
 	
 	return FReply::Unhandled();
 }

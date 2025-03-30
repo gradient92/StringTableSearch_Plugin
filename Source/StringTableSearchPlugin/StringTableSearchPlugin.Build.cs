@@ -39,6 +39,8 @@ public class StringTableSearchPlugin : ModuleRules
 				"Slate",
 				"SlateCore", 
 				"WorkspaceMenuStructure",
+				"InputCore",
+				"ApplicationCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

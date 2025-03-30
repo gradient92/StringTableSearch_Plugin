@@ -39,5 +39,7 @@ private:
 
 	float GetColumnFillCoefficient(int32 ColumnIndex) const;
 
-	FReply OnMouseClick(const FGeometry& Geometry, const FPointerEvent& PointerEvent) const;
+	FReply OnElementMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& MouseEvent, TPair<FString, FString> Pair);
+
+	FReply OnMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent) const;
 };

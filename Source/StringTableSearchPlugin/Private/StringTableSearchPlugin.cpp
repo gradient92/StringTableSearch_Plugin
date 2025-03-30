@@ -21,7 +21,7 @@ void FStringTableSearchPluginModule::RegisterSearchInStringTables()
 {
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(FName("SearchInStringTables"),
 		FOnSpawnTab::CreateRaw(this, &FStringTableSearchPluginModule::OnSpawnSearchInStringTablesTab))
-	.SetDisplayName(FText::FromString(TEXT("Search In StringTables")))
+	.SetDisplayName(FText::FromString(TEXT("Search in StringTables")))
 	.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory())
 	.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Search"));
 }
