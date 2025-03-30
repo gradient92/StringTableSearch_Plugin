@@ -38,8 +38,12 @@ private:
 	void OnSlotResize(float FillCoefficient, int32 ColumnIndex) const;
 
 	float GetColumnFillCoefficient(int32 ColumnIndex) const;
+	
+	FReply OnStringTableMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent) const;
 
+	FReply OnStringTableMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& MouseEvent);
+
+	FReply OnElementMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent, FString Key) const;
+	
 	FReply OnElementMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& MouseEvent, TPair<FString, FString> Pair);
-
-	FReply OnMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent) const;
 };

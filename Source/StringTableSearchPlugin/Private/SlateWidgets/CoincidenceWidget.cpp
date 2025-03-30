@@ -3,7 +3,11 @@
 #include "SlateWidgets/CoincidenceWidget.h"
 
 #include "AssetToolsModule.h"
+#include "ContentBrowserModule.h"
+#include "IContentBrowserSingleton.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "Internationalization/StringTable.h"
+#include "Widgets/Input/SSearchBox.h"
 
 void SCoincidenceWidget::Construct(const FArguments& InArgs)
 {
@@ -34,7 +38,8 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 			SNew(SBorder)
 			.BorderImage(&MainBorderBrush.Get())
 			.VAlign(VAlign_Center)
-			.OnMouseDoubleClick(this, &SCoincidenceWidget::OnMouseDoubleClick)
+			.OnMouseDoubleClick(this, &SCoincidenceWidget::OnStringTableMouseDoubleClick)
+			.OnMouseButtonUp(this, &SCoincidenceWidget::OnStringTableMouseButtonUp)
 			[
 				SNew(SBox)
 				.VAlign(VAlign_Center)
@@ -102,6 +107,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 					.BorderImage(&ElementBorderBrush.Get())
 					.VAlign(VAlign_Center)
 					.OnMouseButtonUp(this, &SCoincidenceWidget::OnElementMouseButtonUp, Pair)
+					.OnMouseDoubleClick(this, &SCoincidenceWidget::OnElementMouseDoubleClick, Pair.Key)
 					[
 						SNew(STextBlock)
 						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
@@ -121,6 +127,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 					.BorderImage(&ElementBorderBrush.Get())
 					.VAlign(VAlign_Center)
 					.OnMouseButtonUp(this, &SCoincidenceWidget::OnElementMouseButtonUp, Pair)
+					.OnMouseDoubleClick(this, &SCoincidenceWidget::OnElementMouseDoubleClick, Pair.Key)
 					[
 						SNew(STextBlock)
 						.Margin(FMargin(5.f, 0.f, 0.f, 0.f))
@@ -196,6 +203,146 @@ float SCoincidenceWidget::GetColumnFillCoefficient(int32 ColumnIndex) const
  	return ColumnFillCoefficients[ColumnIndex];
 }
 
+FReply SCoincidenceWidget::OnStringTableMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent) const
+{
+	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		TArray<UObject*> AssetsToOpenArray;
+		AssetsToOpenArray.Add(AssetData->GetAsset());  
+	
+		FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get()
+		.OpenEditorForAssets(AssetsToOpenArray);
+	}
+	
+	return FReply::Unhandled();
+}
+
+FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& MouseEvent)
+{
+	if (MouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		FMenuBuilder MenuBuilder(true, nullptr);
+		
+		MenuBuilder.BeginSection("AssetContextExploreMenuOptions", FText::FromString("Explore"));
+		MenuBuilder.AddMenuEntry(
+			FText::FromString("Show in Folder View"),
+			FText::FromString("Selects the folder that contains this asset in the Content Browser Sources Panel."),
+			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "ContentBrowser.TabIcon"),
+			FUIAction(FExecuteAction::CreateLambda([this]()
+			{
+				TArray<UObject*> AssetsToFind;
+				AssetsToFind.Add(AssetData->GetAsset());  
+				FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser").Get().SyncBrowserToAssets(AssetsToFind);
+			}))
+		);
+		MenuBuilder.EndSection();
+		
+		MenuBuilder.BeginSection("Options", FText::FromString("Options"));
+		MenuBuilder.AddMenuEntry(
+			FText::FromString("Copy StringTable Name"),
+			FText::FromString("Copy the selected StringTable Name"),
+			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FUIAction(FExecuteAction::CreateLambda([this]()
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*AssetData->AssetName.ToString());
+			}))
+		);
+		
+		MenuBuilder.AddMenuEntry(
+			FText::FromString("Copy StringTable Reference"),
+			FText::FromString("Copy the selected StringTable Reference"),
+			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FUIAction(FExecuteAction::CreateLambda([this]()
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*FString::Printf(TEXT("%s'%s'"),
+					*AssetData->GetClass()->GetClassPathName().ToString(), *AssetData->GetSoftObjectPath().ToString()));
+			}))
+		);
+		MenuBuilder.EndSection();
+		
+		TSharedRef<SWidget> ContextMenu = MenuBuilder.MakeWidget();
+		
+		FSlateApplication::Get().PushMenu(
+			AsShared(),
+			FWidgetPath(),
+			ContextMenu,
+			MouseEvent.GetScreenSpacePosition(),
+			FPopupTransitionEffect(FPopupTransitionEffect::ContextMenu)
+		);
+
+	}
+	return FReply::Unhandled();
+}
+
+FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent, FString Key) const
+{
+	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		UStringTable* StringTable = Cast<UStringTable>(AssetData->GetAsset());
+		
+		if (GEditor)
+		{
+			UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+			
+			GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(StringTable);
+			
+			IAssetEditorInstance* EditorInstance = AssetEditorSubsystem->FindEditorForAsset(StringTable, false);
+
+			if (EditorInstance)
+			{
+				TSharedPtr<SWindow> EditorWindow;
+            	if (!EditorWindow.IsValid())
+            	{
+            		TArray<TSharedRef<SWindow>> AllWindows;
+            		FSlateApplication::Get().GetAllVisibleWindowsOrdered(AllWindows);
+        
+            		for (const TSharedRef<SWindow>& Window : AllWindows)
+            		{
+            			if (Window->GetTitle().ToString().Contains(AssetData->AssetName.ToString()))
+            			{
+            				EditorWindow = Window;
+            				break;
+            			}
+            		}
+            	}
+
+				if (EditorWindow.IsValid())
+				{
+					TSharedPtr<SWidget> FoundSearchBox;
+					
+					TFunction<void(TSharedRef<SWidget>)> WidgetSearch = [&](const TSharedRef<SWidget>& Widget)
+					{
+						if (!FoundSearchBox.IsValid() && Widget->GetTypeAsString() == "SSearchBox")
+						{
+							FoundSearchBox = Widget;
+						}
+                        
+						if (!FoundSearchBox.IsValid())
+						{
+							FChildren* Children = Widget->GetChildren();
+							for (int32 i = 0; i < Children->Num() && !FoundSearchBox.IsValid(); ++i)
+							{
+								WidgetSearch(Children->GetChildAt(i));
+							}
+						}
+					};
+
+					WidgetSearch(EditorWindow.ToSharedRef());
+					
+					if (FoundSearchBox.IsValid())
+					{
+						if (TSharedPtr<SSearchBox> SearchBox = StaticCastSharedPtr<SSearchBox>(FoundSearchBox))
+						{
+							SearchBox->SetText(FText::FromString(Key));
+						}
+					}
+				}
+			}
+		}
+	}
+	return FReply::Unhandled();
+}
+
 FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& MouseEvent,
 	 TPair<FString, FString> Pair)
 {
@@ -225,8 +372,8 @@ FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, con
 		);
 
 		MenuBuilder.AddMenuEntry(
-			FText::FromString("Copy Reference"),
-			FText::FromString("Copy the selected row reference"),
+			FText::FromString("Copy Row Reference"),
+			FText::FromString("Copy the selected Row Reference"),
 			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
 			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
 			{
@@ -246,19 +393,5 @@ FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, con
 		);
 
 	}
-	return FReply::Unhandled();
-}
-
-FReply SCoincidenceWidget::OnMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent) const
-{
-	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	{
-		TArray<UObject*> AssetsToOpenArray;
-		AssetsToOpenArray.Add(AssetData->GetAsset());  
-	
-		FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get()
-		.OpenEditorForAssets(AssetsToOpenArray);
-	}
-	
 	return FReply::Unhandled();
 }

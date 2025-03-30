@@ -40,7 +40,8 @@ public class StringTableSearchPlugin : ModuleRules
 				"SlateCore", 
 				"WorkspaceMenuStructure",
 				"InputCore",
-				"ApplicationCore"
+				"UnrealEd",
+				"ApplicationCore",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
