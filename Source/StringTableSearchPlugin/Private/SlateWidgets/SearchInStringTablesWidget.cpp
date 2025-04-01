@@ -67,6 +67,8 @@ void SSearchInStringTablesWidget::OnSearchTextChanged(const FText& Text)
 
 void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETextCommit::Type CommitType )
 {
+	if (CommitType != ETextCommit::OnEnter) return;
+	
 	if (SearchValue.TrimStartAndEnd().IsEmpty()) return;
 	
 	ResultsContainer->ClearChildren();
