@@ -8,5 +8,4 @@ I think I’m not the only one who was frustrated by the lack of a good tool for
 Releases for Unreal Engine 4.27, 5.0 in progress
 
 ## :desktop_computer: Instructions
-![StringTablePlugin_instructions](https://github.com/user-attachments/assets/4edbca0f-5cf1-4531-96b2-cbbc59958f4c)
-
+![StringTablePlugin_instructions](https://github.com/user-attachments/assets/5e080996-1b20-4858-9232-aa9de08147b0)
