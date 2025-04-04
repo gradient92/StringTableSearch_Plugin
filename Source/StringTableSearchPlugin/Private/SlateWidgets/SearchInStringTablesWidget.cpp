@@ -24,44 +24,39 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 {
 	this->ChildSlot
 	[
-		SNew(SBorder)
-		.BorderImage(FAppStyle::Get().GetBrush("Brushes.Panel"))
+		SNew(SVerticalBox)
+		+SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(0.f, 0.f, 0.f, 4.f)
 		[
-			SNew(SVerticalBox)
-			+SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(8.f, 5.f, 8.f, 5.f)
+			SNew(SBox)
+			.HeightOverride(20.f)
 			[
-				SNew(SBox)
-				.HeightOverride(26.f)
+				SNew(SHorizontalBox)
+				+SHorizontalBox::Slot()
+				.FillWidth(1)
 				[
-					SNew(SHorizontalBox)
-					+SHorizontalBox::Slot()
-					.FillWidth(1)
-					[
-						SNew(SSearchBox)
-						.HintText(FText::FromString(TEXT("Enter Key or Source String to find references...")))
-						.OnTextChanged(this, &SSearchInStringTablesWidget::OnSearchTextChanged)
-						.OnTextCommitted(this, &SSearchInStringTablesWidget::OnSearchTextCommitted)
-						.DelayChangeNotificationsWhileTyping(false)
-					]
+					SNew(SSearchBox)
+					.HintText(FText::FromString(TEXT("Enter Key or Source String to find references...")))
+					.OnTextChanged(this, &SSearchInStringTablesWidget::OnSearchTextChanged)
+					.OnTextCommitted(this, &SSearchInStringTablesWidget::OnSearchTextCommitted)
+					.DelayChangeNotificationsWhileTyping(false)
 				]
 			]
-			+SVerticalBox::Slot()
-			.FillHeight(1.0f)
-			[
-				SNew(SBorder)
-				.BorderImage(FAppStyle::Get().GetBrush("Brushes.Recessed"))
-				.Padding(FMargin(8.f, 8.f, 4.f, 0.f))
-				[
-					SAssignNew(ResultsContainer, SModifiedScrollBox)
-				]
-			]
-
-			+SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding( FMargin( 0.f, 8.f ) )
 		]
+		+SVerticalBox::Slot()
+		.FillHeight(1.0f)
+		[
+			SNew(SBorder)
+			.BorderImage(FEditorStyle::GetBrush("Menu.Background"))
+			.Padding(FMargin(8.f, 8.f, 4.f, 0.f))
+			[
+				SAssignNew(ResultsContainer, SModifiedScrollBox)
+			]
+		]
+		/*+SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding( FMargin( 0.f, 8.f ) )*/
 	];
 }
 
@@ -100,7 +95,7 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 			return true;
 		});
 		
-		if (!Coincidences.IsEmpty())
+		if (Coincidences.Num() > 0)
 		{
 			StringTablesWithCoincidences.SetNum(StringTablesWithCoincidences.Num() + 1);
 

@@ -26,8 +26,8 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 		]
 	];
 
-	MainBorderBrush->TintColor = FSlateColor(FLinearColor(FColor::FromHex(TEXT("2F2F2FFF"))));
-	ElementBorderBrush->TintColor = FSlateColor(FLinearColor(FColor::FromHex(TEXT("242424FF"))));
+	MainBorderBrush->TintColor = FSlateColor(FLinearColor(FColor::FromHex(TEXT("303030FF"))));
+	ElementBorderBrush->TintColor = FSlateColor(FLinearColor(FColor::FromHex(TEXT("3E3E3EFF"))));
 	
 	VerticalBox->AddSlot()
 	[
@@ -47,29 +47,31 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					.Padding(5.f, 0.f, 0.f, 0.f)
+					.Padding(9.f, 3.f, 0.f, 0.f)
 					[
 						SAssignNew(ExpanderArrow, SButton)
-						.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+						.ButtonStyle( FCoreStyle::Get(), "NoBorder" )
 						.VAlign(VAlign_Center)
 						.HAlign(HAlign_Center)
 						.ClickMethod(EButtonClickMethod::MouseDown)
 						.OnClicked(this, &SCoincidenceWidget::OnExpanderClicked)
 						.IsFocusable(false)
+						.ContentPadding(0.f)
+						.ForegroundColor( FSlateColor::UseForeground() )
 						[
 							SNew(SImage)
 							.Image( this, &SCoincidenceWidget::GetExpanderImage)
-							.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+							.ColorAndOpacity( FSlateColor::UseForeground() )
 						]
 					]
             				
 					+ SHorizontalBox::Slot()
-					.Padding(5.f, 0.f, 0.f, 0.f)
+					.Padding(2.f, 0.f, 0.f, 0.f)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(InArgs._StringTablesWithCoincidence->AssetData->AssetName.ToString()))
-						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.TextStyle(FEditorStyle::Get(), "DetailsView.CategoryTextStyle")
 						.Justification(ETextJustify::Left)
 					]
 				]
@@ -95,7 +97,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 			.Padding(FMargin(2.f, 0.f, 2.f, 1.f))
 			[
 				SNew(SSplitter)
-				.Style(FAppStyle::Get(), "DetailsView.Splitter")
+				.Style(FEditorStyle::Get(), "DetailsView.Splitter")
 				.PhysicalSplitterHandleSize(1.0f)
 				.HitDetectionSplitterHandleSize(10.0f)
 				.Clipping(EWidgetClipping::ClipToBoundsAlways)
@@ -116,7 +118,6 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 						.AutoWrapText(false)
 						.WrapTextAt(0)
 						.Clipping(EWidgetClipping::ClipToBounds)
-						.OverflowPolicy(ETextOverflowPolicy::Ellipsis)
 					]
 				]
 				+ SSplitter::Slot()
@@ -136,7 +137,6 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 						.AutoWrapText(false)
 						.WrapTextAt(0)
 						.Clipping(EWidgetClipping::ClipToBounds)
-						.OverflowPolicy(ETextOverflowPolicy::Ellipsis)
 					]
 				]
 			]
@@ -189,7 +189,7 @@ const FSlateBrush* SCoincidenceWidget::GetExpanderImage() const
 		}
 	}
 
-	return FAppStyle::Get().GetBrush(ResourceName);
+	return FEditorStyle::GetBrush(ResourceName);
 }
 
 void SCoincidenceWidget::OnSlotResize(float FillCoefficient, int32 ColumnIndex) const
@@ -227,7 +227,7 @@ FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry,
 		MenuBuilder.AddMenuEntry(
 			FText::FromString("Show in Folder View"),
 			FText::FromString("Selects the folder that contains this asset in the Content Browser Sources Panel."),
-			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "ContentBrowser.TabIcon"),
+			FSlateIcon(FEditorStyle::GetStyleSetName(), "ContentBrowser.TabIcon"),
 			FUIAction(FExecuteAction::CreateLambda([this]()
 			{
 				TArray<UObject*> AssetsToFind;
@@ -241,7 +241,7 @@ FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry,
 		MenuBuilder.AddMenuEntry(
 			FText::FromString("Copy StringTable Name"),
 			FText::FromString("Copy the selected StringTable Name"),
-			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FSlateIcon(FCoreStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
 			FUIAction(FExecuteAction::CreateLambda([this]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*AssetData->AssetName.ToString());
@@ -251,7 +251,7 @@ FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry,
 		MenuBuilder.AddMenuEntry(
 			FText::FromString("Copy StringTable Reference"),
 			FText::FromString("Copy the selected StringTable Reference"),
-			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FSlateIcon(FCoreStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
 			FUIAction(FExecuteAction::CreateLambda([this]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*FString::Printf(TEXT("%s'%s'"),
@@ -274,6 +274,7 @@ FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry,
 	return FReply::Unhandled();
 }
 
+//TODO: Fix problem with finding row in StringTable
 FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent, FString Key) const
 {
 	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
@@ -354,7 +355,7 @@ FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, con
 		MenuBuilder.AddMenuEntry(
 			FText::FromString("Copy Key"),
 			FText::FromString("Copy the selected Key"),
-			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FSlateIcon(FCoreStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
 			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*Pair.Key);
@@ -364,7 +365,7 @@ FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, con
 		MenuBuilder.AddMenuEntry(
 			FText::FromString("Copy Source String"),
 			FText::FromString("Copy the selected Source String"),
-			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FSlateIcon(FCoreStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
 			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*Pair.Value);
@@ -374,7 +375,7 @@ FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, con
 		MenuBuilder.AddMenuEntry(
 			FText::FromString("Copy Row Reference"),
 			FText::FromString("Copy the selected Row Reference"),
-			FSlateIcon(FAppStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
+			FSlateIcon(FCoreStyle::Get().GetStyleSetName(), "GenericCommands.Copy"),
 			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*FString::Printf(TEXT("LOCTABLE(\"%s\", \"%s\")"),

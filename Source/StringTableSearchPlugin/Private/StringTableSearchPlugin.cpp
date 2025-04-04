@@ -23,7 +23,7 @@ void FStringTableSearchPluginModule::RegisterSearchInStringTables()
 		FOnSpawnTab::CreateRaw(this, &FStringTableSearchPluginModule::OnSpawnSearchInStringTablesTab))
 	.SetDisplayName(FText::FromString(TEXT("Search in StringTables")))
 	.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory())
-	.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Search"));
+	.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Kismet.Tabs.FindResults"));
 }
 
 TSharedRef<SDockTab> FStringTableSearchPluginModule::OnSpawnSearchInStringTablesTab(const FSpawnTabArgs& SpawnTabArgs)

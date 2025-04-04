@@ -42,6 +42,7 @@ public class StringTableSearchPlugin : ModuleRules
 				"InputCore",
 				"UnrealEd",
 				"ApplicationCore",
+				"EditorStyle"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
