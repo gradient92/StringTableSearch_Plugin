@@ -8,6 +8,11 @@
 #include "SlateWidgets/CoincidenceWidget.h"
 #include "Widgets/Input/SSearchBox.h"
 
+int32 SModifiedScrollBox::NumSlots() const
+{
+	return ScrollPanel->Children.Num();
+}
+
 SSearchInStringTablesWidget::SSearchInStringTablesWidget()
 {
 	AssetRegistryModule = &FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
@@ -49,7 +54,7 @@ void SSearchInStringTablesWidget::Construct(const FArguments& InArgs)
 				.BorderImage(FAppStyle::Get().GetBrush("Brushes.Recessed"))
 				.Padding(FMargin(8.f, 8.f, 4.f, 0.f))
 				[
-					SAssignNew(ResultsContainer, SScrollBox)
+					SAssignNew(ResultsContainer, SModifiedScrollBox)
 				]
 			]
 
@@ -75,7 +80,7 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 	StringTableAssets.Empty();
 	StringTablesWithCoincidences.Empty();
 	
-	AssetRegistryModule->Get().GetAssetsByClass(UStringTable::StaticClass()->GetClassPathName(), StringTableAssets);
+	AssetRegistryModule->Get().GetAssetsByClass(*UStringTable::StaticClass()->GetName(), StringTableAssets);
 	
 	for (FAssetData& AssetData : StringTableAssets)
 	{

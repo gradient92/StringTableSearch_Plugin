@@ -3,11 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 struct FStringTable_Coincidences
 {
 	FAssetData* AssetData;
 	TMap<FString, FString> StringMap;
+};
+
+class SModifiedScrollBox : public SScrollBox
+{
+public:
+	int32 NumSlots() const;
 };
 
 class FAssetRegistryModule;
@@ -35,7 +42,7 @@ private:
 	
 	TArray<FStringTable_Coincidences> StringTablesWithCoincidences;
 
-	TSharedPtr<SScrollBox> ResultsContainer;
+	TSharedPtr<SModifiedScrollBox> ResultsContainer;
 
 	float ColumnFillCoefficients[2];
 

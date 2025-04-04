@@ -32,7 +32,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 	VerticalBox->AddSlot()
 	[
 		SNew(SBox)
-		.Padding(0.f, 0.f, 0.f, 1.f)
+		.Padding(FMargin(0.f, 0.f, 0.f, 1.f))
 		.HeightOverride(28.f)
 		[
 			SNew(SBorder)
@@ -92,7 +92,7 @@ void SCoincidenceWidget::Construct(const FArguments& InArgs)
 			SAssignNew(Box, SBox)
 			.Visibility(isExpanded ? EVisibility::Visible : EVisibility::Collapsed)
 			.HeightOverride(28.f)
-			.Padding(2.f, 0.f, 2.f, 1.f)
+			.Padding(FMargin(2.f, 0.f, 2.f, 1.f))
 			[
 				SNew(SSplitter)
 				.Style(FAppStyle::Get(), "DetailsView.Splitter")
@@ -255,7 +255,7 @@ FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry,
 			FUIAction(FExecuteAction::CreateLambda([this]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*FString::Printf(TEXT("%s'%s'"),
-					*AssetData->GetClass()->GetClassPathName().ToString(), *AssetData->GetSoftObjectPath().ToString()));
+					*AssetData->GetClass()->GetName(), *AssetData->ObjectPath.ToString()));
 			}))
 		);
 		MenuBuilder.EndSection();
@@ -378,7 +378,7 @@ FReply SCoincidenceWidget::OnElementMouseButtonUp(const FGeometry& Geometry, con
 			FUIAction(FExecuteAction::CreateLambda([this, Pair]()
 			{
 				FPlatformApplicationMisc::ClipboardCopy(*FString::Printf(TEXT("LOCTABLE(\"%s\", \"%s\")"),
-					*AssetData->GetSoftObjectPath().ToString(), *Pair.Key));
+					*AssetData->ObjectPath.ToString(), *Pair.Key));
 			}))
 		);
 
