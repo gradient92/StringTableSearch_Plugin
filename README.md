@@ -7,9 +7,7 @@ I think I’m not the only one who was frustrated by the lack of a good tool for
 
 [Download v1.0.1](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.1-ue5.0/StringTableSearchPlugin_ue5.0.zip) for Unreal Engine 5.0
 
-
-
-Release for Unreal Engine 4.27 in progress
+[Download v1.0.1](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.1-ue4.27/StringTableSearchPlugin_ue4.27.zip) for Unreal Engine 4.27
 
 ## :desktop_computer: Instructions
-![StringTablePlugin_instructions](https://github.com/user-attachments/assets/5e080996-1b20-4858-9232-aa9de08147b0)
+![StringTablePlugin_instructions_4 27](https://github.com/user-attachments/assets/364ef4d6-cf13-4798-97ba-1084d491f0ee)
