@@ -7,7 +7,6 @@
 #include "IContentBrowserSingleton.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "Internationalization/StringTable.h"
-#include "Slate/Private/Framework/Docking/SDockingArea.h"
 #include "Widgets/Input/SSearchBox.h"
 
 void SCoincidenceWidget::Construct(const FArguments& InArgs)
