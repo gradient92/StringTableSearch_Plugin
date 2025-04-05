@@ -7,6 +7,7 @@
 #include "IContentBrowserSingleton.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "Internationalization/StringTable.h"
+#include "Slate/Private/Framework/Docking/SDockingArea.h"
 #include "Widgets/Input/SSearchBox.h"
 
 void SCoincidenceWidget::Construct(const FArguments& InArgs)
@@ -274,7 +275,6 @@ FReply SCoincidenceWidget::OnStringTableMouseButtonUp(const FGeometry& Geometry,
 	return FReply::Unhandled();
 }
 
-//TODO: Fix problem with finding row in StringTable
 FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, const FPointerEvent& MouseEvent, FString Key) const
 {
 	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
@@ -304,40 +304,75 @@ FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, 
             				EditorWindow = Window;
             				break;
             			}
+            			else
+            			{
+            				TFunction<void(const TSharedRef<SWidget>&)> FindDockTabsRecursive;
+            				
+            				FindDockTabsRecursive = [&](const TSharedRef<SWidget>& Widget)
+            				{
+            					if (Widget->GetTypeAsString() == "SDockTab")
+            					{
+            						TSharedRef<const SDockTab> DockTab = StaticCastSharedRef<const SDockTab>(Widget);
+            						FString TabText = DockTab->GetTabLabel().ToString();
+
+            						UE_LOG(LogTemp, Warning, TEXT("%s"), *TabText );
+
+            						if (TabText.Contains(AssetData->AssetName.ToString()))
+            						{
+            							UE_LOG(LogTemp, Warning, TEXT("%s"), *DockTab->GetTabLabel().ToString() );
+            							EditorWindow = Window;
+            							return;
+            						}
+            					}
+            					const FChildren* Children = Widget->GetChildren();
+            					if (Children)
+            					{
+            						for (int32 i = 0; i < Children->Num(); ++i)
+            						{
+            							TSharedRef<SWidget> Child = ConstCastSharedRef<SWidget>(Children->GetChildAt(i));
+            							FindDockTabsRecursive(Child);
+            						}
+            					}
+            				};
+
+            				FindDockTabsRecursive(Window);
+
+            				if (EditorWindow != nullptr) break;
+            			}
+            		}
+
+            		if (EditorWindow.IsValid())
+            		{
+            			TSharedPtr<SWidget> FoundSearchBox;
+					
+            			TFunction<void(TSharedRef<SWidget>)> WidgetSearch = [&](const TSharedRef<SWidget>& Widget)
+            			{
+            				if (!FoundSearchBox.IsValid() && Widget->GetTypeAsString() == "SSearchBox")
+            				{
+            					FoundSearchBox = Widget;
+            				}
+                        
+            				if (!FoundSearchBox.IsValid())
+            				{
+            					FChildren* Children = Widget->GetChildren();
+            					for (int32 i = 0; i < Children->Num() && !FoundSearchBox.IsValid(); ++i)
+            					{
+            						WidgetSearch(Children->GetChildAt(i));
+            					}
+            				}
+            			};
+
+            			WidgetSearch(EditorWindow.ToSharedRef());
+					
+            			if (FoundSearchBox.IsValid())
+            			{
+            				if (TSharedPtr<SSearchBox> SearchBox = StaticCastSharedPtr<SSearchBox>(FoundSearchBox))
+            				{
+            					SearchBox->SetText(FText::FromString(Key));
+            				}
+            			}
             		}
             	}
-
-				if (EditorWindow.IsValid())
-				{
-					TSharedPtr<SWidget> FoundSearchBox;
-					
-					TFunction<void(TSharedRef<SWidget>)> WidgetSearch = [&](const TSharedRef<SWidget>& Widget)
-					{
-						if (!FoundSearchBox.IsValid() && Widget->GetTypeAsString() == "SSearchBox")
-						{
-							FoundSearchBox = Widget;
-						}
-                        
-						if (!FoundSearchBox.IsValid())
-						{
-							FChildren* Children = Widget->GetChildren();
-							for (int32 i = 0; i < Children->Num() && !FoundSearchBox.IsValid(); ++i)
-							{
-								WidgetSearch(Children->GetChildAt(i));
-							}
-						}
-					};
-
-					WidgetSearch(EditorWindow.ToSharedRef());
-					
-					if (FoundSearchBox.IsValid())
-					{
-						if (TSharedPtr<SSearchBox> SearchBox = StaticCastSharedPtr<SSearchBox>(FoundSearchBox))
-						{
-							SearchBox->SetText(FText::FromString(Key));
-						}
-					}
-				}
 			}
 		}
 	}
