@@ -73,8 +73,9 @@ void SSearchInStringTablesWidget::OnSearchTextChanged(const FText& Text)
 void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETextCommit::Type CommitType )
 {
 	if (CommitType != ETextCommit::OnEnter) return;
-	
-	if (SearchValue.TrimStartAndEnd().IsEmpty()) return;
+
+	SearchValue = SearchValue.TrimStartAndEnd();
+	if (SearchValue.IsEmpty()) return;
 	
 	ResultsContainer->ClearChildren();
 	StringTableAssets.Empty();
@@ -93,7 +94,14 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 		
 		TableData->EnumerateSourceStrings([&](const FString& Key, const FString& SourceString) 
 		{
-			if (Key.ToLower().Contains(SearchValue.ToLower()) || SourceString.ToLower().Contains(SearchValue.ToLower()))
+			FString CompareString = SourceString.Replace(TEXT("\r\n"),TEXT(" "));
+
+			while (CompareString.Contains(TEXT("  "))) {
+				CompareString = CompareString.Replace(TEXT("  "), TEXT(" "));
+			}
+            			
+			if (Key.Contains(SearchValue, ESearchCase::IgnoreCase) ||
+				CompareString.Contains(SearchValue, ESearchCase::IgnoreCase))
 			{
 				Coincidences.Add(Key, SourceString);
 			}
