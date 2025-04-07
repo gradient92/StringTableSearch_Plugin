@@ -88,7 +88,9 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 		
 		TableData->EnumerateSourceStrings([&](const FString& Key, const FString& SourceString) 
 		{
-			if (Key.ToLower().Contains(SearchValue.ToLower()) || SourceString.ToLower().Contains(SearchValue.ToLower()))
+			FString CompareString = SourceString.ToLower().Replace(TEXT("\r\n"),TEXT(" "));
+			
+			if (Key.ToLower().Contains(SearchValue.ToLower()) || CompareString.Contains(SearchValue.ToLower()))
 			{
 				Coincidences.Add(Key, SourceString);
 			}
