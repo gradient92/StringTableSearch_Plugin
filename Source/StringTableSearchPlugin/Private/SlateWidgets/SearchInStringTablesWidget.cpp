@@ -1,4 +1,5 @@
-// Copyright Alexander "gradient92" Vashchenko
+// Copyright (c) 2025 Alexander "gradient92" Vashchenko
+// Licensed under the MIT License. See LICENSE file for details.
 
 #include "SlateWidgets/SearchInStringTablesWidget.h"
 
