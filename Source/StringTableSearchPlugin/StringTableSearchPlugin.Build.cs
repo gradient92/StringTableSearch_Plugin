@@ -1,4 +1,5 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2025 Alexander "gradient92" Vashchenko
+// Licensed under the MIT License. See LICENSE file for details.
 
 using UnrealBuildTool;
 
