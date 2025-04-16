@@ -340,39 +340,39 @@ FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, 
             				if (EditorWindow != nullptr) break;
             			}
             		}
-
-            		if (EditorWindow.IsValid())
-            		{
-            			TSharedPtr<SWidget> FoundSearchBox;
-					
-            			TFunction<void(TSharedRef<SWidget>)> WidgetSearch = [&](const TSharedRef<SWidget>& Widget)
-            			{
-            				if (!FoundSearchBox.IsValid() && Widget->GetTypeAsString() == "SSearchBox")
-            				{
-            					FoundSearchBox = Widget;
-            				}
-                        
-            				if (!FoundSearchBox.IsValid())
-            				{
-            					FChildren* Children = Widget->GetChildren();
-            					for (int32 i = 0; i < Children->Num() && !FoundSearchBox.IsValid(); ++i)
-            					{
-            						WidgetSearch(Children->GetChildAt(i));
-            					}
-            				}
-            			};
-
-            			WidgetSearch(EditorWindow.ToSharedRef());
-					
-            			if (FoundSearchBox.IsValid())
-            			{
-            				if (TSharedPtr<SSearchBox> SearchBox = StaticCastSharedPtr<SSearchBox>(FoundSearchBox))
-            				{
-            					SearchBox->SetText(FText::FromString(Key));
-            				}
-            			}
-            		}
             	}
+
+				if (EditorWindow.IsValid())
+				{
+					TSharedPtr<SWidget> FoundSearchBox;
+					
+					TFunction<void(TSharedRef<SWidget>)> WidgetSearch = [&](const TSharedRef<SWidget>& Widget)
+					{
+						if (!FoundSearchBox.IsValid() && Widget->GetTypeAsString() == "SSearchBox")
+						{
+							FoundSearchBox = Widget;
+						}
+                        
+						if (!FoundSearchBox.IsValid())
+						{
+							FChildren* Children = Widget->GetChildren();
+							for (int32 i = 0; i < Children->Num() && !FoundSearchBox.IsValid(); ++i)
+							{
+								WidgetSearch(Children->GetChildAt(i));
+							}
+						}
+					};
+
+					WidgetSearch(EditorWindow.ToSharedRef());
+					
+					if (FoundSearchBox.IsValid())
+					{
+						if (TSharedPtr<SSearchBox> SearchBox = StaticCastSharedPtr<SSearchBox>(FoundSearchBox))
+						{
+							SearchBox->SetText(FText::FromString(Key));
+						}
+					}
+				}
 			}
 		}
 	}
