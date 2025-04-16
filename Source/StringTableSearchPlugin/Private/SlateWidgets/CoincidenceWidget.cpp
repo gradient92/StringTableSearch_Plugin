@@ -292,20 +292,55 @@ FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, 
 			if (EditorInstance)
 			{
 				TSharedPtr<SWindow> EditorWindow;
-            	if (!EditorWindow.IsValid())
-            	{
-            		TArray<TSharedRef<SWindow>> AllWindows;
-            		FSlateApplication::Get().GetAllVisibleWindowsOrdered(AllWindows);
+				if (!EditorWindow.IsValid())
+				{
+					TArray<TSharedRef<SWindow>> AllWindows;
+					FSlateApplication::Get().GetAllVisibleWindowsOrdered(AllWindows);
         
-            		for (const TSharedRef<SWindow>& Window : AllWindows)
-            		{
-            			if (Window->GetTitle().ToString().Contains(AssetData->AssetName.ToString()))
-            			{
-            				EditorWindow = Window;
-            				break;
-            			}
-            		}
-            	}
+					for (const TSharedRef<SWindow>& Window : AllWindows)
+					{
+						if (Window->GetTitle().ToString().Contains(AssetData->AssetName.ToString()))
+						{
+							EditorWindow = Window;
+							break;
+						}
+						else
+						{
+							TFunction<void(const TSharedRef<SWidget>&)> FindDockTabsRecursive;
+            				
+							FindDockTabsRecursive = [&](const TSharedRef<SWidget>& Widget)
+							{
+								if (Widget->GetTypeAsString() == "SDockTab")
+								{
+									TSharedRef<const SDockTab> DockTab = StaticCastSharedRef<const SDockTab>(Widget);
+									FString TabText = DockTab->GetTabLabel().ToString();
+
+									UE_LOG(LogTemp, Warning, TEXT("%s"), *TabText );
+
+									if (TabText.Contains(AssetData->AssetName.ToString()))
+									{
+										UE_LOG(LogTemp, Warning, TEXT("%s"), *DockTab->GetTabLabel().ToString() );
+										EditorWindow = Window;
+										return;
+									}
+								}
+								const FChildren* Children = Widget->GetChildren();
+								if (Children)
+								{
+									for (int32 i = 0; i < Children->Num(); ++i)
+									{
+										TSharedRef<SWidget> Child = ConstCastSharedRef<SWidget>(Children->GetChildAt(i));
+										FindDockTabsRecursive(Child);
+									}
+								}
+							};
+
+							FindDockTabsRecursive(Window);
+
+							if (EditorWindow != nullptr) break;
+						}
+					}
+				}
 
 				if (EditorWindow.IsValid())
 				{
