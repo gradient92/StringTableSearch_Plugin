@@ -315,11 +315,8 @@ FReply SCoincidenceWidget::OnElementMouseDoubleClick(const FGeometry& Geometry, 
             						TSharedRef<const SDockTab> DockTab = StaticCastSharedRef<const SDockTab>(Widget);
             						FString TabText = DockTab->GetTabLabel().ToString();
 
-            						UE_LOG(LogTemp, Warning, TEXT("%s"), *TabText );
-
             						if (TabText.Contains(AssetData->AssetName.ToString()))
             						{
-            							UE_LOG(LogTemp, Warning, TEXT("%s"), *DockTab->GetTabLabel().ToString() );
             							EditorWindow = Window;
             							return;
             						}
