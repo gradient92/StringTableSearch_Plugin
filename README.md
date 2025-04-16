@@ -3,11 +3,11 @@ I think I’m not the only one who was frustrated by the lack of a good tool for
 
 ## :floppy_disk: DOWNLOAD
 
-[Download v1.0.3](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.2_ue5.5/StringTableSearchPlugin_v1.0.3_ue5.5.zip) for Unreal Engine 5.5
+[Download v1.0.3](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.3_ue5.5/StringTableSearchPlugin_v1.0.3_ue5.5.zip) for Unreal Engine 5.5
 
-[Download v1.0.3](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.2_ue5.0/StringTableSearchPlugin_v1.0.3_ue5.0.zip) for Unreal Engine 5.0 (can be compiled for Unreal Engine 5.1-5.4)
+[Download v1.0.3](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.3_ue5.0/StringTableSearchPlugin_v1.0.3_ue5.0.zip) for Unreal Engine 5.0 (can be compiled for Unreal Engine 5.1-5.4)
 
-[Download v1.0.3](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.2_ue4.27/StringTableSearchPlugin_v1.0.3_ue4.27.zip) for Unreal Engine 4.27
+[Download v1.0.3](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.3_ue4.27/StringTableSearchPlugin_v1.0.3_ue4.27.zip) for Unreal Engine 4.27
 
 ## :desktop_computer: Instructions
 ![StringTablePlugin_instructions](https://github.com/user-attachments/assets/5e080996-1b20-4858-9232-aa9de08147b0)
