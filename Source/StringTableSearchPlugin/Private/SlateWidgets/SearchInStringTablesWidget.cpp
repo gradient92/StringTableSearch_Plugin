@@ -100,6 +100,10 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 			while (CompareString.Contains(TEXT("  "))) {
 				CompareString = CompareString.Replace(TEXT("  "), TEXT(" "));
 			}
+
+			while (SearchValue.Contains(TEXT("  "))) {
+				SearchValue = SearchValue.Replace(TEXT("  "), TEXT(" "));
+			}
             			
 			if (Key.Contains(SearchValue, ESearchCase::IgnoreCase) ||
 				CompareString.Contains(SearchValue, ESearchCase::IgnoreCase))
