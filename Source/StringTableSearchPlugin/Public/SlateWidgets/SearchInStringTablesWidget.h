@@ -8,7 +8,7 @@
 struct FStringTable_Coincidences
 {
 	FAssetData* AssetData;
-	TMap<FString, FString> StringMap;
+	TArray<TPair<FString, FString>> StringMap;
 };
 
 class FAssetRegistryModule;
