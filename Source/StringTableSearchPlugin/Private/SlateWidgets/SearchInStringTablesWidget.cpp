@@ -86,7 +86,7 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 		
 		FStringTableConstRef TableData = StringTable->GetStringTable();
 		
-		TMap<FString, FString> Coincidences;
+		TArray<TPair<FString, FString>> Coincidences;
 		
 		TableData->EnumerateSourceStrings([&](const FString& Key, const FString& SourceString) 
 		{
@@ -103,9 +103,14 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 			if (Key.Contains(SearchValue, ESearchCase::IgnoreCase) ||
 				CompareString.Contains(SearchValue, ESearchCase::IgnoreCase))
 			{
-				Coincidences.Add(Key, SourceString);
+				Coincidences.Add(TPair<FString, FString>(Key, SourceString));
 			}
 			return true;
+		});
+
+		Algo::Sort(Coincidences, [](const TPair<FString, FString>& A, const TPair<FString, FString>& B)
+		{
+			return A.Key < B.Key;
 		});
 		
 		if (Coincidences.Num() > 0)
@@ -117,6 +122,11 @@ void SSearchInStringTablesWidget::OnSearchTextCommitted( const FText& Text, ETex
 		}
 	}
 
+	Algo::Sort(StringTablesWithCoincidences, [](const FStringTable_Coincidences& A, const FStringTable_Coincidences& B)
+	{
+		return A.AssetData->AssetName.ToString() < B.AssetData->AssetName.ToString();
+	});
+	
 	for (FStringTable_Coincidences StringTableCoincidence : StringTablesWithCoincidences)
 	{
 		ResultsContainer->AddSlot()
