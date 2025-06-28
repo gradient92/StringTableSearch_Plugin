@@ -3,9 +3,9 @@ I think I’m not the only one who was frustrated by the lack of a good tool for
 
 ## :floppy_disk: DOWNLOAD
 
-[Download v1.0.4](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.4_ue5.5/StringTableSearchPlugin_v1.0.4_ue5.5.zip) for Unreal Engine 5.5 (compilable for UE 5.6)
+[Download v1.0.4](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.4_ue5.5/StringTableSearchPlugin_v1.0.4_ue5.5.zip) for Unreal Engine 5.5 (can be rebuilt for UE 5.6)
 
-[Download v1.0.4](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.4_ue5.0/StringTableSearchPlugin_v1.0.4_ue5.0.zip) for Unreal Engine 5.0 (compilable for UE 5.1-5.4)
+[Download v1.0.4](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.4_ue5.0/StringTableSearchPlugin_v1.0.4_ue5.0.zip) for Unreal Engine 5.0 (can be rebuilt for UE 5.1-5.4)
 
 [Download v1.0.4](https://github.com/gradient92/StringTableSearch_Plugin/releases/download/v1.0.4_ue4.27/StringTableSearchPlugin_v1.0.4_ue4.27.zip) for Unreal Engine 4.27
 
